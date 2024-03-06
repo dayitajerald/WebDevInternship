@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <input type="text" id="taskInput" placeholder="Add new task...">
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const taskInput = document.getElementById("taskInput");
+            const taskList = document.getElementById("taskList");
+
+            // Load tasks from local storage
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            // Function to render tasks
+            function renderTasks() {
+                taskList.innerHTML = "";
+                tasks.forEach((task, index) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <span class="${task.completed ? 'task-completed' : ''}">${task.text}</span>
+                        <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                    `;
+                    li.addEventListener("click", () => {
+                        toggleTaskCompleted(index);
+                    });
+                    taskList.appendChild(li);
+                });
+            }
+
+            // Function to add new task
+            function addTask(text) {
+                const newTask = { text, completed: false };
+                tasks.push(newTask);
+                renderTasks();
+                saveTasks();
+            }
+
+            // Function to delete task
+            function deleteTask(index) {
+                tasks.splice(index, 1);
+                renderTasks();
+                saveTasks();
+            }
+
+            // Function to toggle task completed status
+            function toggleTaskCompleted(index) {
+                tasks[index].completed = !tasks[index].completed;
+                renderTasks();
+                saveTasks();
+            }
+
+            // Function to save tasks to local storage
+            function saveTasks() {
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+
+            // Render initial tasks
+            renderTasks();
+
+            // Add task when Enter key is pressed
+            taskInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter" && taskInput.value.trim() !== "") {
+                    addTask(taskInput.value.trim());
+                    taskInput.value = "";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
